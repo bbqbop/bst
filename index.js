@@ -42,76 +42,75 @@ const Tree = function(array){
             return null;
         }
         const mid = Math.floor((start + end) / 2);
-        const root = new Node(array[mid]);
-        root.left = __buildTree(array, start, mid - 1);
-        root.right = __buildTree(array, mid + 1, end);
-        return root;
+        const node = new Node(array[mid]);
+        node.left = __buildTree(array, start, mid - 1);
+        node.right = __buildTree(array, mid + 1, end);
+        return node;
     }
     const editedArray = __eraseDuplicates(__sortArray(array));
     this.root = __buildTree(editedArray);
 }
 Tree.prototype = {
-    insert : function(value, root = this.root){
-        if (root === null){
-            root = new Node(value);
-            return root;
+    insert : function(value, node = this.root){
+        if (node === null){
+            node = new Node(value);
+            return node;
         }
-        if (value < root.data){
-            root.left = this.insert(value, root.left);
+        if (value < node.data){
+            node.left = this.insert(value, node.left);
         }
-        else if (value > root.data){
-            root.right = this.insert(value, root.right);
+        else if (value > node.data){
+            node.right = this.insert(value, node.right);
         }
-        return root;
+        return node;
     }, 
-    delete : function(value, root = this.root){
-        if (root === null){
-            return root;
+    delete : function(value, node = this.root){
+        if (node === null){
+            return node;
         }
-        if (value < root.data){
-            root.left = this.delete(value, root.left);
+        if (value < node.data){
+            node.left = this.delete(value, node.left);
         }
-        else if (value > root.data){
-            root.right = this.delete(value, root.right);
+        else if (value > node.data){
+            node.right = this.delete(value, node.right);
         }
         else {
             // if node has only one or no children
-            if (root.left === null){
-                return root.right;
+            if (node.left === null){
+                return node.right;
             }
-            else if (root.right === null){
-                return root.left;
+            else if (node.right === null){
+                return node.left;
             }
             // if node has two children
                 // find successor (smallest num to the right):
-            root.data = this.findSmallest(root.right);
+            node.data = this.findSmallest(node.right);
                 // delete the successor node
-            root.right = this.delete(root.data, root.right)
+            node.right = this.delete(node.data, node.right)
         }
-        return root;
+        return node;
     },
-    findSmallest: function(root){
-        let value = root.data;
-        while (root.left !== null){
-            value = root.left.data;
-            root = root.left;
+    findSmallest: function(node){
+        let value = node.data;
+        while (node.left !== null){
+            value = node.left.data;
+            node = node.left;
         };
         return value;
+    },
+    find: function(value, node = this.root){
+        // if node is empty, return;
+        if (node === null || node.data === value){
+            return node;
+        }
+        if (value < node.data){
+            return this.find(value, node.left)
+        }
+        else if (value > node.data){
+            return this.find(value, node.right);
+        }
     }, 
-    find: function(value, root = this.root){
-        // if root is empty, return;
-        if (root === null || root.data === value){
-            return root;
-        }
-        if (value < root.data){
-            return this.find(value, root.left)
-        }
-        else if (value > root.data){
-            return this.find(value, root.right);
-        }
-    }, 
-    levelOrder: function(cb = false){
-        const output = [];
+    levelOrder: function(callback = (x) => array.push(x), array = []){
         const queue = [];
         queue.push(this.root);
         while (queue.length >= 1){
@@ -119,15 +118,66 @@ Tree.prototype = {
                 queue.shift();
                 continue
             }
-            output.push(queue[0].data);
+            callback(queue[0].data);
             queue.push(queue[0].left, queue[0].right);
             queue.shift();
         }
-        if (cb){
-            return output.forEach(value => cb(value))
-        }
-        return output;
+        return array;
     },
+    inOrder: function(callback = (x)=> array.push(x), array = [], node = this.root){
+        if (node == null){
+            return
+        }
+        this.inOrder(callback, array, node.left);
+        callback(node.data);
+        this.inOrder(callback, array, node.right);
+        return array;
+    },
+    preOrder: function(callback = (x)=> array.push(x), array = [], node = this.root){
+        if (node == null){
+            return
+        }
+        callback(node.data);
+        this.preOrder(callback, array, node.left);
+        this.preOrder(callback, array, node.right);
+        return array;
+    },
+    postOrder: function(callback = (x)=> array.push(x), array = [], node = this.root){
+        if (node == null){
+            return
+        }
+        this.postOrder(callback, array, node.left);
+        this.postOrder(callback, array, node.right);
+        callback(node.data);
+        return array;
+    },
+    height: function(node = this.root){
+        if (node === null){
+            return -1;
+        }
+        const heightLeft = this.height(node.left)
+        const heightRight = this.height(node.right);
+
+        return heightLeft > heightRight ? heightLeft + 1 : heightRight + 1;
+    },
+    depth: function(value){
+        let depth = 0;
+        let node = this.root;
+
+        while (node != null){
+            if (value == node.data){
+                return depth;
+            }
+            if (value < node.data){
+                node = node.left;
+            }
+            else node = node.right;
+            depth++;
+        }
+        return -1
+    },
+    isBalanced: function(){
+    }
 }
 
 const prettyPrint = (node, prefix = '', isLeft = true) => {
@@ -146,18 +196,39 @@ const prettyPrint = (node, prefix = '', isLeft = true) => {
 const testArray = [1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]
 const bst = new Tree(testArray);
 
-// bst.insert(10);
-// bst.delete(8);
+// EDIT METHODS:
 
-// .find :
-    // console.log('return node if found :\n\n', bst.find(9), `\n\nreturn null if not: ${bst.find(10)}\n\n`);
+    // bst.insert(10);
+    // bst.delete(8);
 
+    // print edited tree:
 prettyPrint(bst.root);
+ß
+// READ METHODS:
+    // .find :
+            // console.log('return node if found :\n\n', bst.find(9), `\n\nreturn null if not: ${bst.find(10)}\n\n`);
 
-// .levelOrder :
-    // if called with a callback function, every value in the BST will be passed to the CB in level order :
-        // bst.levelOrder((x) => console.log(x));
-    // if called without argument, it will return an array of all the values in level order : 
-        // console.log(bst.levelOrder());
+    // .levelOrder (breadth-first):
+        // if called with a callback function, every value in the BST will be passed to the CB in level order :
+            // bst.levelOrder((x) => console.log(x));
+        // if called without argument, it will return an array of all the values in level order : 
+            // console.log(bst.levelOrder());
+
+    // same for .inOrder, .preOrder & .postOrder (depth-first):
+            // console.log(bst.inOrder())
+            // console.log(bst.preOrder())
+            // console.log(bst.postOrder())
+
+    // .height
+        // returns the height of a given node, returns total height without an argument :
+            // console.log(bst.height())   
+            // console.log(bst.height(bst.find(67)))  
+
+    // .depth
+        // returns the depth of a given value, -1 if value is not found:
+            // console.log(bst.depth(324))
+
+    
+
 
 
