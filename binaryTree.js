@@ -177,58 +177,59 @@ Tree.prototype = {
         return -1
     },
     isBalanced: function(){
+        const heightLeft = this.height(this.root.left);
+        const heightRight = this.height(this.root.right);
+
+        if (heightLeft >= heightRight && heightLeft <= heightRight + 1 ||
+            heightRight >= heightLeft && heightRight <= heightLeft + 1
+            ){
+            return true;
+        }
+        return false;
+    },
+    reBalance: function(){
+        const array = this.inOrder();
+        Object.assign(this, new Tree(array));
     }
 }
 
-const prettyPrint = (node, prefix = '', isLeft = true) => {
-    if (node === null) {
-       return;
-    }
-    if (node.right !== null) {
-      prettyPrint(node.right, `${prefix}${isLeft ? '│   ' : '    '}`, false);
-    }
-    console.log(`${prefix}${isLeft ? '└── ' : '┌── '}${node.data}`);
-    if (node.left !== null) {
-      prettyPrint(node.left, `${prefix}${isLeft ? '    ' : '│   '}`, true);
-    }
-  }
-
-const testArray = [1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]
-const bst = new Tree(testArray);
+module.exports = Tree;
 
 // EDIT METHODS:
 
     // bst.insert(10);
     // bst.delete(8);
 
-    // print edited tree:
-prettyPrint(bst.root);
-ß
 // READ METHODS:
-    // .find :
+    // .find(value) :
             // console.log('return node if found :\n\n', bst.find(9), `\n\nreturn null if not: ${bst.find(10)}\n\n`);
 
-    // .levelOrder (breadth-first):
+    // .levelOrder() (breadth-first):
         // if called with a callback function, every value in the BST will be passed to the CB in level order :
             // bst.levelOrder((x) => console.log(x));
         // if called without argument, it will return an array of all the values in level order : 
             // console.log(bst.levelOrder());
 
-    // same for .inOrder, .preOrder & .postOrder (depth-first):
+    // same for .inOrder(), .preOrder() & .postOrder() (depth-first):
             // console.log(bst.inOrder())
             // console.log(bst.preOrder())
             // console.log(bst.postOrder())
 
-    // .height
+    // .height(node)
         // returns the height of a given node, returns total height without an argument :
             // console.log(bst.height())   
             // console.log(bst.height(bst.find(67)))  
 
-    // .depth
+    // .depth(value)
         // returns the depth of a given value, -1 if value is not found:
             // console.log(bst.depth(324))
 
-    
+    // .isBalanced()
+        // returns true if Tree is balanced, false if not :
+            // console.log(bst.isBalanced());
 
+    // .reBalance()
+        // creates an array from the current Tree and builds a new balanced Tree with it:
+            // bst.reBalance()
 
 
